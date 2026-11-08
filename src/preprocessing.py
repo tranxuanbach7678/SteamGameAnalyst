@@ -63,12 +63,12 @@ def clean_steam_types(df: pd.DataFrame) -> pd.DataFrame:
     ]
     for col in numeric_cols:
         if col in clean_df.columns:
-            clean_df[col] = pd.to_numeric(clean_df[col], errors='coerce').fillna(0)
+            clean_df[col] = pd.to_numeric(clean_df[col], errors='coerce').fillna(0) # chuyến giá trị về dạng số, gặp chữ thì chuyền về NAN, fill các NAN bằng 0
 
     # Boolean platform support
-    for col in ['Windows', 'Mac', 'Linux']:
-        if col in clean_df.columns:
-            clean_df[col] = clean_df[col].astype(str).str.lower().isin(['true', '1', 't'])
+    # for col in ['Windows', 'Mac', 'Linux']:
+    #     if col in clean_df.columns:
+    #         clean_df[col] = clean_df[col].astype(str).str.lower().isin(['true', '1', 't'])
 
     # Parse Release date
     if 'Release date' in clean_df.columns:
