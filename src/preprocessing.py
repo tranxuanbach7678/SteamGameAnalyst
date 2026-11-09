@@ -126,22 +126,20 @@ def extract_derived_features(df: pd.DataFrame) -> pd.DataFrame:
         out['Estimated_Owners_Midpoint'] = parse_owner_midpoint(out['Estimated owners'])
 
     # Description length (word count) (D3)
-    if 'About the game' in out.columns:
-        out['Description_Word_Count'] = (
-            out['About the game']
-            .fillna('')
-            .astype(str)
-            .apply(lambda text: len(text.split()))
-        )
+    if 'About the game' in out.columns: # cùng logic: thiếu mô tả ≠ mô tả 0 từ
+        out['Description_Word_Count'] = out['About the game'].apply(
+            lambda t: np.nan if pd.isna(t) or not str(t).strip() else len(str(t).split()))
 
     # Supported language count (D3)
+    def _count_languages(s):
+        if pd.isna(s) or s.strip() in ('', '[]'):
+            return np.nan                      # thiếu dữ liệu, không phải 0 hay 1
+        items = re.findall(r"'([^']*)'", s)
+        return len(items) if items else 1\
+    
     if 'Supported languages' in out.columns:
-        out['Language_Count'] = (
-            out['Supported languages']
-            .fillna('')
-            .astype(str)
-            .apply(lambda s: len(re.findall(r"'([^']*)'", s)) if "'" in s else (1 if len(s.strip()) > 0 else 0))
-        )
+        out['Language_Count'] = out['Supported languages'].apply(_count_languages)
+
 
     return out
 
