@@ -8,6 +8,9 @@ import re
 import pandas as pd
 import numpy as np
 
+# Bộ khóa định danh nội dung trò chơi (dùng để phát hiện bản sao thừa khác AppID)
+GAME_IDENTITY_KEY = ['Name', 'Release date', 'Developers', 'Price']
+
 
 def filter_with_audit(df: pd.DataFrame, condition: pd.Series, step_name: str) -> pd.DataFrame:
     """
@@ -150,6 +153,11 @@ def extract_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     if 'Supported languages' in out.columns:
         out['Language_Count'] = out['Supported languages'].apply(_count_languages)
 
+    # Demo, Playtest, or Beta flag (D3)
+    if 'Name' in out.columns:
+        out['Is_Demo_Like'] = out['Name'].astype(str).str.contains(
+            r'\b(?:demo|playtest|beta)\b', case=False, na=False
+        )
 
     return out
 
