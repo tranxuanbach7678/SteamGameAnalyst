@@ -33,14 +33,15 @@ def filter_with_audit(df: pd.DataFrame, condition: pd.Series, step_name: str) ->
 def parse_owner_midpoint(owner_series: pd.Series) -> pd.Series:
     """
     Convert SteamSpy 'min - max' owners string into estimated numerical midpoint.
-    e.g., '20000 - 50000' -> 35000.
+    e.g., '20000 - 50000' -> 35000. '0 - 0' represents unmeasured/missing -> NaN.
     """
     def _parse_single(val):
         if pd.isna(val) or not isinstance(val, str):
             return np.nan
         nums = re.findall(r'\d+', val.replace(',', ''))
         if len(nums) == 2:
-            return (int(nums[0]) + int(nums[1])) / 2.0
+            lo, hi = int(nums[0]), int(nums[1])
+            return np.nan if (lo == 0 and hi == 0) else (lo + hi) / 2.0
         elif len(nums) == 1:
             return float(nums[0])
         return np.nan
@@ -64,6 +65,11 @@ def clean_steam_types(df: pd.DataFrame) -> pd.DataFrame:
     for col in numeric_cols:
         if col in clean_df.columns:
             clean_df[col] = pd.to_numeric(clean_df[col], errors='coerce').fillna(0) # chuyến giá trị về dạng số, gặp chữ thì chuyền về NAN, fill các NAN bằng 0
+
+    # Đổi 0 thành NaN cho các cột điểm số
+    for score_col in ['Metacritic score', 'User score']:
+        if score_col in clean_df.columns:
+            clean_df[score_col] = clean_df[score_col].replace(0, np.nan)
 
     # Boolean platform support
     # for col in ['Windows', 'Mac', 'Linux']:
@@ -92,6 +98,8 @@ def extract_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     # Monetary and Business models (D3)
     out['Is_Free'] = out['Price'] == 0.0
     out['Has_DLC'] = out['DLC count'] > 0
+    out['Price_Outlier'] = out['Price'] > 100.0  # Cờ ngoại lai giá cực đoan (> $100)
+    out['Log_Price'] = np.log1p(out['Price'])    # Biến đổi Log nén thang đo
     out['Price_Tier'] = pd.cut(
         out['Price'],
         bins=[-0.01, 0, 9.99, 29.99, float('inf')],
@@ -107,7 +115,8 @@ def extract_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     # Playtime engagement (D3)
-    out['Playtime_Hours'] = out['Median playtime forever'] / 60.0
+    out['Playtime_Hours'] = (out['Median playtime forever'] / 60.0).where(out['Median playtime forever'] > 0)
+    out['Has_Playtime_Data'] = out['Median playtime forever'] > 0
 
     # Cross-platform support tier (D3, D4)
     out['Platform_Count'] = out['Windows'].astype(int) + out['Mac'].astype(int) + out['Linux'].astype(int)
@@ -124,6 +133,7 @@ def extract_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     # Estimated owners midpoint (D3)
     if 'Estimated owners' in out.columns:
         out['Estimated_Owners_Midpoint'] = parse_owner_midpoint(out['Estimated owners'])
+        out['Has_Owner_Data'] = out['Estimated_Owners_Midpoint'].notna()
 
     # Description length (word count) (D3)
     if 'About the game' in out.columns: # cùng logic: thiếu mô tả ≠ mô tả 0 từ
@@ -135,7 +145,7 @@ def extract_derived_features(df: pd.DataFrame) -> pd.DataFrame:
         if pd.isna(s) or s.strip() in ('', '[]'):
             return np.nan                      # thiếu dữ liệu, không phải 0 hay 1
         items = re.findall(r"'([^']*)'", s)
-        return len(items) if items else 1\
+        return len(items) if items else 1
     
     if 'Supported languages' in out.columns:
         out['Language_Count'] = out['Supported languages'].apply(_count_languages)
