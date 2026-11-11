@@ -39,11 +39,11 @@ Each question fulfills the required depth criteria specified in Sections 3.3 and
 
 ### Non-ML Questions (Covering Depth Criteria D1 to D6)
 * **Question 1 (Member 1) [Criteria D2, D3, D4, D5]:**  
-  *How has monetization strategy (Free-to-Play vs Paid, and DLC reliance) evolved across 2010–2024, and does offering DLC expansions significantly boost median player engagement after controlling for game genre?*
+  *How has the distribution of monetization models (Free-to-Play vs Traditional Paid vs Paid with DLC) evolved across 2010–2024, and how does combining paid models with DLC expansions affect both player engagement (median playtime) and player satisfaction (positive review ratio) after controlling for game genre?*
 * **Question 2 (Member 1) [Criteria D3, D4, D5, D6]:**  
   *Is multi-platform support (Linux & Mac alongside Windows) associated with higher player satisfaction (positive review ratio) and international market reach, and does this hold across both indie and major publishers under different review threshold filters?*
-* **Question 3 (Member 2) [Criteria D1, D2, D3, D4]:**  
-  *How does the integration of community and multiplayer features (Co-op, PvP, Steam Workshop, Achievements) influence peak concurrent players (Peak CCU) across distinct price tiers?*
+* **Question 3 (Member 2) [Criteria D1, D2, D3, D4, D5]:**  
+  *The Multiplayer Dilemma: Does integrating multiplayer and co-op modes pose a greater risk of failure ('Dead Game' with Peak CCU < 10) or unlock extreme breakout potential (90th percentile Peak CCU) compared to singleplayer titles across distinct price tiers?*
 * **Question 4 (Member 2) [Criteria D1, D3, D4, D6]:**  
   *What is the relationship between storefront metadata richness (description word count, marketing media assets) and commercial visibility, and how robust is this effect across genres and outlier filtering regimes?*
 * **Question 5 (Member 3) [Criteria D2, D3, D5, D6]:**  
